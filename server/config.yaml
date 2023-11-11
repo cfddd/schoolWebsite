@@ -122,9 +122,9 @@ mysql:
     prefix: ""
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
-    db-name: gvaSchool
+    db-name: gva
     username: root
-    password: "123456"
+    password: "201828"
     path: 127.0.0.1
     engine: ""
     log-mode: error
