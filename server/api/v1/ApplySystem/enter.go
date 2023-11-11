@@ -7,6 +7,9 @@ import (
 
 type ApiGroup struct {
 	CompetitionPrizeApi
+	ScientificResearchApi
+	AcademicPapersApi
+	PatentAuthorizationApi
 }
 
 // ResultDetailView 提交后查询
