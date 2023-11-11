@@ -12,11 +12,7 @@ autocode:
     server-api: /api/v1/%s
     server-plug: /plugin/%s
     server-initialize: /initialize
-<<<<<<< HEAD
-    root: D:\AcademyWebsite\schoolWebsite\gin-vue-admin
-=======
-    root: D:\goland\schoolWebsite\schoolWebsite
->>>>>>> feb7117e704babe6410e7c3c1e881559d09afec1
+    root: D:\Projects_Go\schoolWebsite
     web-table: /view
     web: /web/src
     server-service: /service/%s
@@ -87,11 +83,7 @@ hua-wei-obs:
     access-key: you-access-key
     secret-key: you-secret-key
 jwt:
-<<<<<<< HEAD
     signing-key: 7ec8d27f-85f3-4d8c-9290-5e5fea2773f9
-=======
-    signing-key: 6111cf49-c10d-4051-b669-3bf519f23639
->>>>>>> feb7117e704babe6410e7c3c1e881559d09afec1
     expires-time: 7d
     buffer-time: 1d
     issuer: qmPlus
@@ -130,16 +122,10 @@ mysql:
     prefix: ""
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
-<<<<<<< HEAD
-    db-name: gva
-    username: root
-    password: "201828"
-=======
-    db-name: gvaSchool
+    db-name: gvaschool
     username: root
     password: "123456"
->>>>>>> feb7117e704babe6410e7c3c1e881559d09afec1
-    path: 127.0.0.1
+    path: 125.220.110.165
     engine: ""
     log-mode: error
     max-idle-conns: 10
