@@ -30,4 +30,6 @@ yarn-error.log*
 web/.pnpm-debug.log
 web/pnpm-lock.yaml
 
+local_settings.yaml
+
 server/config.yaml

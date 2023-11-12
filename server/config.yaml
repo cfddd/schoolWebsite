@@ -12,7 +12,7 @@ autocode:
     server-api: /api/v1/%s
     server-plug: /plugin/%s
     server-initialize: /initialize
-    root: D:\goland\schoolWebsite\schoolWebsite
+    root: D:\Projects_Go\schoolWebsite
     web-table: /view
     web: /web/src
     server-service: /service/%s
@@ -83,7 +83,7 @@ hua-wei-obs:
     access-key: you-access-key
     secret-key: you-secret-key
 jwt:
-    signing-key: 6111cf49-c10d-4051-b669-3bf519f23639
+    signing-key: 7ec8d27f-85f3-4d8c-9290-5e5fea2773f9
     expires-time: 7d
     buffer-time: 1d
     issuer: qmPlus
@@ -122,10 +122,10 @@ mysql:
     prefix: ""
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
-    db-name: gvaSchool
+    db-name: gvaschool
     username: root
     password: "123456"
-    path: 127.0.0.1
+    path:  125.220.98.185
     engine: ""
     log-mode: error
     max-idle-conns: 10
