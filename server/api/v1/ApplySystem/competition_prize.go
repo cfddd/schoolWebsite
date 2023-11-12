@@ -1,7 +1,6 @@
 package ApplySystem
 
 import (
-	"fmt"
 	"github.com/fatih/structs"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ApplySystem"
@@ -65,22 +64,7 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 	materialList := []ApplySystem.MaterialUploadModel{}
 	for _, file := range fileList {
 		var material ApplySystem.MaterialUploadModel
-		material.Path = fmt.Sprintf("server/uploads/file" + file.Filename)
-		// 存到本地去
-		err = c.SaveUploadedFile(file, material.Path)
-		if err != nil {
-			global.GVA_LOG.Error("创建失败!", zap.Error(err))
-			response.FailWithMessage(err.Error(), c)
-			return
-		} else {
-			// 存到数据库中
-			err = MUService.CreateMaterialUpload(&material)
-			if err != nil {
-				global.GVA_LOG.Error("创建失败!", zap.Error(err))
-				response.FailWithMessage(err.Error(), c)
-				return
-			}
-		}
+		material.Upload(file, c)
 		materialList = append(materialList, material)
 	}
 
@@ -123,7 +107,14 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrize(c *gin.Context) {
 		return
 	}
 	// 删除对应的材料
-
+	for _, material := range CP.MaterialUploadModels {
+		err = material.Delete()
+		if err != nil {
+			global.GVA_LOG.Error("删除失败!", zap.Error(err))
+			response.FailWithMessage("删除失败", c)
+			return
+		}
+	}
 	if err := CPService.DeleteCompetitionPrize(CP); err != nil {
 		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
@@ -219,7 +210,6 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 	// 判断有没有传新的证明材料，如果有就要把旧的删掉
 	materialList := []ApplySystem.MaterialUploadModel{} // 材料
 	if len(fileList) > 0 {
-
 		// 材料表对应部分删掉
 		for _, material := range CompentitionPrizeOld.MaterialUploadModels {
 			err = material.Delete()
