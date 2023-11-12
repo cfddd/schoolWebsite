@@ -3,6 +3,7 @@ package ApplySystem
 import (
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ApplySystem"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"os"
@@ -14,6 +15,8 @@ type ApiGroup struct {
 	AcademicPapersApi
 	PatentAuthorizationApi
 }
+
+var MUService = service.ServiceGroupApp.ApplySystemServiceGroup.MaterialUploadService
 
 // MaterialDelete 删除资料
 func MaterialDelete(mat *ApplySystem.MaterialUploadModel) (err error) {

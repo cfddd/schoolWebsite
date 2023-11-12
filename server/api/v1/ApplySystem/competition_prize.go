@@ -18,7 +18,6 @@ type CompetitionPrizeApi struct {
 }
 
 var CPService = service.ServiceGroupApp.ApplySystemServiceGroup.CompetitionPrizeService
-var MUService = service.ServiceGroupApp.ApplySystemServiceGroup.MaterialUploadService
 
 type CompetitionPrizeRequest struct {
 	Student_id       string     `json:"student_id" binding:"required" msg:"学号必填"`
@@ -144,7 +143,29 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrizeByIds(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	// 删除材料，
+	// 跟举IDS查找对应要删除的申请
+	var CPS []ApplySystem.CompetitionPrize
+	for _, ID := range IDS.Ids {
+		CP, err := CPService.GetCompetitionPrize(ID)
+		if err != nil {
+			global.GVA_LOG.Error("没有这条数据", zap.Error(err))
+			response.FailWithMessage("没有这条数据", c)
+			return
+		}
+		CPS = append(CPS, CP)
+	}
+
+	// 删除材料
+	for _, CP := range CPS {
+		for _, material := range CP.MaterialUploadModels {
+			err = MaterialDelete(&material)
+			if err != nil {
+				global.GVA_LOG.Error("删除失败!", zap.Error(err))
+				response.FailWithMessage("删除失败", c)
+				return
+			}
+		}
+	}
 
 	if err := CPService.DeleteCompetitionPrizeByIds(IDS); err != nil {
 		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
@@ -261,7 +282,6 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 		}
 		dataMap[k] = v
 	}
-
 	if err := CPService.UpdateCompetitionPrize(cr.ID, dataMap); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
