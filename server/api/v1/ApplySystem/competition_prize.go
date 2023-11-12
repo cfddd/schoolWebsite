@@ -2,6 +2,7 @@ package ApplySystem
 
 import (
 	"fmt"
+	"github.com/fatih/structs"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ApplySystem"
 	ApplySystemReq "github.com/flipped-aurora/gin-vue-admin/server/model/ApplySystem/request"
@@ -9,7 +10,6 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"time"
@@ -19,9 +19,10 @@ type CompetitionPrizeApi struct {
 }
 
 var CPService = service.ServiceGroupApp.ApplySystemServiceGroup.CompetitionPrizeService
+var MUService = service.ServiceGroupApp.ApplySystemServiceGroup.MaterialUploadService
 
 type CompetitionPrizeRequest struct {
-	Student_id       string     `json:"student_Id" binding:"required" msg:"学号必填"`
+	Student_id       string     `json:"student_id" binding:"required" msg:"学号必填"`
 	Student_name     string     `json:"student_name" binding:"required" msg:"姓名必填"`
 	Competition_name string     `json:"competition_name" binding:"required" msg:"比赛名称必填"`
 	Award_time       *time.Time `json:"award_time" binding:"required" msg:"获奖时间必填"`
@@ -47,6 +48,7 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 		res.FailWithError(err, cr, c)
 		return
 	}
+	// 检查当前学号是否正确，是否存在
 
 	// 上传多个图片文件
 	form, err := c.MultipartForm()
@@ -56,18 +58,30 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 	}
 
 	fileList, ok := form.File["uploads"]
+	if !ok {
+		res.FailWithMessage("不存在的文件", c)
+		return
+	}
 	materialList := []ApplySystem.MaterialUploadModel{}
 	for _, file := range fileList {
 		var material ApplySystem.MaterialUploadModel
 		material.Path = fmt.Sprintf("server/uploads/file" + file.Filename)
 		// 存到本地去
-		c.SaveUploadedFile(file, material.Path)
-
+		err = c.SaveUploadedFile(file, material.Path)
+		if err != nil {
+			global.GVA_LOG.Error("创建失败!", zap.Error(err))
+			response.FailWithMessage(err.Error(), c)
+			return
+		} else {
+			// 存到数据库中
+			err = MUService.CreateMaterialUpload(&material)
+			if err != nil {
+				global.GVA_LOG.Error("创建失败!", zap.Error(err))
+				response.FailWithMessage(err.Error(), c)
+				return
+			}
+		}
 		materialList = append(materialList, material)
-	}
-	if !ok {
-		res.FailWithMessage("不存在的文件", c)
-		return
 	}
 
 	err = CPService.CreateCompetitionPrize(&ApplySystem.CompetitionPrize{
@@ -108,6 +122,8 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrize(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	// 删除对应的材料
+
 	if err := CPService.DeleteCompetitionPrize(CP); err != nil {
 		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
@@ -132,6 +148,8 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrizeByIds(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	// 删除材料
+
 	if err := CPService.DeleteCompetitionPrizeByIds(IDS); err != nil {
 		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
@@ -140,7 +158,19 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrizeByIds(c *gin.Context) {
 	}
 }
 
-// UpdateCompetitionPrize 更新比赛获奖申报
+type CompetitionPrizeUpdateRequest struct {
+	Student_id       string     `json:"student_id"`
+	Student_name     string     `json:"student_name"`
+	Competition_name string     `json:"competition_name"`
+	Award_time       *time.Time `json:"award_time"`
+	Award_type       string     `json:"award_type"`
+	Award_level      string     `json:"award_level"`
+	Competition_type string     `json:"competition_type"`
+	Description      string     `json:"description"`
+	ID               uint       `json:"id"`
+}
+
+// UpdateCompetitionPrizeStudent 更新比赛获奖申报
 // @Tags CompetitionPrize
 // @Summary 更新比赛获奖申报
 // @Security ApiKeyAuth
@@ -149,35 +179,101 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrizeByIds(c *gin.Context) {
 // @Param data body ApplySystem.CompetitionPrize true "更新比赛获奖申报"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /CP/updateCompetitionPrize [put]
-func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrize(c *gin.Context) {
-	var CP ApplySystem.CompetitionPrize
-	err := c.ShouldBindJSON(&CP)
+func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) {
+	// 要更新的参数
+	var cr CompetitionPrizeUpdateRequest
+	err := c.ShouldBindJSON(&cr)
+	if err != nil {
+		global.GVA_LOG.Error("读入参数失败", zap.Error(err))
+		res.FailWithError(err, cr, c)
+		return
+	}
+	// 上传了新的资料
+	form, err := c.MultipartForm()
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	verify := utils.Rules{
-		"Student_id":       {utils.NotEmpty()},
-		"Student_name":     {utils.NotEmpty()},
-		"Competition_name": {utils.NotEmpty()},
-		"Award_type":       {utils.NotEmpty()},
-		"Award_level":      {utils.NotEmpty()},
-	}
-	if err := utils.Verify(CP, verify); err != nil {
-		response.FailWithMessage(err.Error(), c)
+	fileList, ok := form.File["uploads"]
+	if !ok {
+		res.FailWithMessage("不存在的文件", c)
 		return
 	}
-	if err := CPService.UpdateCompetitionPrize(CP); err != nil {
+
+	// 根据当前该条的申请表url中的id查找到原来的申请证明材料
+	var CompentitionPrizeOld ApplySystem.CompetitionPrize
+	CompentitionPrizeOld, err = CPService.GetCompetitionPrize(cr.ID)
+	if err != nil {
+		global.GVA_LOG.Error("文章不存在", zap.Error(err))
+		response.FailWithMessage("文章不存在", c)
+		return
+	}
+
+	// 如果当前的状态是已通过1或者已提交0那就都不能修改，只有是未通过才能修改
+	if CompentitionPrizeOld.Audit_status == 0 || CompentitionPrizeOld.Audit_status == 1 {
+		global.GVA_LOG.Error("不能修改", zap.Error(err))
+		response.FailWithMessage("不能修改", c)
+		return
+	}
+
+	// 判断有没有传新的证明材料，如果有就要把旧的删掉
+	materialList := []ApplySystem.MaterialUploadModel{} // 材料
+	if len(fileList) > 0 {
+
+		// 材料表对应部分删掉
+		for _, material := range CompentitionPrizeOld.MaterialUploadModels {
+			err = material.Delete()
+		}
+		// 将新的材料部分加入材料表数据库
+		for _, file := range fileList {
+			var material ApplySystem.MaterialUploadModel
+			err = material.Upload(file, c)
+			materialList = append(materialList, material)
+		}
+	}
+
+	// 将要更新的参数赋值成数据库存储的结构体的类型
+	competitionPrizeNew := ApplySystem.CompetitionPrize{
+		UpdatedAt:            time.Now().Format("2006-01-02 15:04:05"),
+		Student_id:           cr.Student_id,
+		Student_name:         cr.Student_name,
+		Competition_name:     cr.Competition_name,
+		Award_time:           cr.Award_time,
+		Award_type:           cr.Award_type,
+		Award_level:          cr.Award_level,
+		Competition_type:     cr.Competition_type,
+		Description:          cr.Description,
+		MaterialUploadModels: materialList, // 资料也要被替换
+	}
+
+	// 转化成map类型
+	maps := structs.Map(&competitionPrizeNew)
+	var dataMap = make(map[string]interface{})
+	for k, v := range maps {
+		switch t := v.(type) {
+		case string:
+			if t == "" {
+				continue
+			}
+		case *time.Time:
+			if t == nil {
+				continue
+			}
+		case []ApplySystem.MaterialUploadModel:
+			if len(t) == 0 {
+				continue
+			}
+		}
+		dataMap[k] = v
+	}
+
+	if err := CPService.UpdateCompetitionPrize(cr.ID, dataMap); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
 	}
 }
-
-//type QueryRequest struct {
-//	Id uint `json:"id"`
-//}
 
 // FindCompetitionPrize 用id查询比赛获奖申报
 // @Tags CompetitionPrize
@@ -189,20 +285,18 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrize(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
 // @Router /CP/findCompetitionPrize [get]
 func (CPApi *CompetitionPrizeApi) FindCompetitionPrize(c *gin.Context) {
-	//var cr QueryRequest
-	//err := c.ShouldBindQuery(&cr)
-	////var CP ApplySystem.CompetitionPrize
-	////err := c.ShouldBindQuery(&CP)
-	//if err != nil {
-	//	response.FailWithMessage(err.Error(), c)
-	//	return
-	//}
-	userID := utils.GetUserID(c)
-	if reCP, err := CPService.GetCompetitionPrize(userID); err != nil {
+	// 查询具体到每一条的我的申报，那么我要显示的内容，
+	var cr ApplySystemReq.IDRequest
+	err := c.ShouldBindUri(&cr)
+	if err != nil {
+		res.FailWitheCode(res.ArgumentError, c)
+		return
+	}
+	if reCP, err := CPService.GetCompetitionPrize(cr.ID); err != nil {
 		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
-		response.OkWithData(gin.H{"reCP": reCP}, c)
+		response.OkWithData(reCP, c)
 	}
 }
 
@@ -222,6 +316,9 @@ func (CPApi *CompetitionPrizeApi) GetCompetitionPrizeList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+
+	//id判断
+
 	if list, total, err := CPService.GetCompetitionPrizeInfoList(pageInfo); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -233,16 +330,4 @@ func (CPApi *CompetitionPrizeApi) GetCompetitionPrizeList(c *gin.Context) {
 			PageSize: pageInfo.PageSize,
 		}, "获取成功", c)
 	}
-}
-
-// ResultDetailView 提交后查询
-func ResultDetailView(c *gin.Context) {
-	userID := utils.GetUserID(c)
-	competitionPrize, err := CPService.GetCompetitionPrize(userID)
-	if err != nil {
-		res.FailWithMessage(err.Error(), c)
-		return
-	}
-
-	res.OKWithData(competitionPrize, c)
 }

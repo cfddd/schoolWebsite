@@ -40,3 +40,12 @@ func FailWithError(err error, obj any, c *gin.Context) {
 	msg := utils.GetValidMsg(err, obj)
 	FailWithMessage(msg, c)
 }
+
+func FailWitheCode(code ErrorCode, c *gin.Context) {
+	msg, ok := ErrorMap[code]
+	if ok {
+		Result(int(code), map[string]any{}, msg, c)
+		return
+	}
+	Result(Error, map[string]any{}, "未知错误", c)
+}
