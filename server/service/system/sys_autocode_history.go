@@ -78,7 +78,7 @@ func (autoCodeHistoryService *AutoCodeHistoryService) RollBack(info *systemReq.R
 		if err != nil {
 			return err
 		}
-		ids.Ids = append(ids.Ids, id)
+		ids.Ids = append(ids.Ids, uint(id))
 	}
 	err := ApiServiceApp.DeleteApisByIds(ids)
 	if err != nil {

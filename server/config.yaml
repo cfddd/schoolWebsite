@@ -125,7 +125,7 @@ mysql:
     db-name: gvaschool
     username: root
     password: "123456"
-    path: 125.220.110.165
+    path:  125.220.98.185
     engine: ""
     log-mode: error
     max-idle-conns: 10

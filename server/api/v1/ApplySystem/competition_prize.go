@@ -64,7 +64,12 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 	materialList := []ApplySystem.MaterialUploadModel{}
 	for _, file := range fileList {
 		var material ApplySystem.MaterialUploadModel
-		material.Upload(file, c)
+		err = MaterialUpload(&material, file, c)
+		if err != nil {
+			global.GVA_LOG.Error("创建失败!", zap.Error(err))
+			response.FailWithMessage("创建失败", c)
+			return
+		}
 		materialList = append(materialList, material)
 	}
 
@@ -108,7 +113,7 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrize(c *gin.Context) {
 	}
 	// 删除对应的材料
 	for _, material := range CP.MaterialUploadModels {
-		err = material.Delete()
+		err = MaterialDelete(&material)
 		if err != nil {
 			global.GVA_LOG.Error("删除失败!", zap.Error(err))
 			response.FailWithMessage("删除失败", c)
@@ -139,7 +144,7 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrizeByIds(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	// 删除材料
+	// 删除材料，
 
 	if err := CPService.DeleteCompetitionPrizeByIds(IDS); err != nil {
 		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
@@ -212,12 +217,12 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 	if len(fileList) > 0 {
 		// 材料表对应部分删掉
 		for _, material := range CompentitionPrizeOld.MaterialUploadModels {
-			err = material.Delete()
+			err = MUService.DeleteMaterialUpload(material)
 		}
 		// 将新的材料部分加入材料表数据库
 		for _, file := range fileList {
 			var material ApplySystem.MaterialUploadModel
-			err = material.Upload(file, c)
+			err = MaterialUpload(&material, file, c)
 			materialList = append(materialList, material)
 		}
 	}
