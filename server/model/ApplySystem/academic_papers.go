@@ -2,13 +2,14 @@
 package ApplySystem
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"time"
 )
 
 // 学术论文 结构体  AcademicPapers
 type AcademicPapers struct {
-	global.GVA_MODEL
+	ID               uint       `json:"id" gorm:"primarykey"` // 主键ID
+	CreatedAt        string     `json:"created_at"`           // 创建时间
+	UpdatedAt        string     `json:"updated_at"`
 	Student_id       string     `json:"student_id" form:"student_id" gorm:"column:student_id;comment:;size:20;"`           //学号
 	Student_name     string     `json:"student_name" form:"student_name" gorm:"column:student_name;comment:;size:20;"`     //学生姓名
 	Papers_name      string     `json:"papers_name" form:"papers_name" gorm:"column:papers_name;comment:;"`                //论文名称

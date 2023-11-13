@@ -63,7 +63,7 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 	materialList := []ApplySystem.MaterialUploadModel{}
 	for _, file := range fileList {
 		var material ApplySystem.MaterialUploadModel
-		err = MaterialUpload(&material, file, c)
+		err = MaterialUpload(&material, file, c) //将材料信息入库
 		if err != nil {
 			global.GVA_LOG.Error("创建失败!", zap.Error(err))
 			response.FailWithMessage("创建失败", c)
@@ -71,6 +71,7 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 		}
 		materialList = append(materialList, material)
 	}
+	//一条提交信息和提交材料是一对多关系
 
 	err = CPService.CreateCompetitionPrize(&ApplySystem.CompetitionPrize{
 		Student_id:           cr.Student_id,
@@ -300,7 +301,7 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
 // @Router /CP/findCompetitionPrize [get]
 func (CPApi *CompetitionPrizeApi) FindCompetitionPrize(c *gin.Context) {
-	// 查询具体到每一条的我的申报，那么我要显示的内容，
+	// 查询具体到每一条的我的申报，那么我要显示的内容
 	var cr ApplySystemReq.IDRequest
 	err := c.ShouldBindUri(&cr)
 	if err != nil {

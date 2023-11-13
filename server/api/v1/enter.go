@@ -4,6 +4,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/ApplySystem"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/system"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
 )
 
 type ApiGroup struct {
@@ -13,3 +14,5 @@ type ApiGroup struct {
 }
 
 var ApiGroupApp = new(ApiGroup)
+
+var MUService = service.ServiceGroupApp.ApplySystemServiceGroup.MaterialUploadService
