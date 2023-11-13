@@ -26,6 +26,9 @@
         <el-form-item label="说明:" prop="description">
           <el-input v-model="formData.description" :clearable="true" placeholder="请输入" />
        </el-form-item>
+       <el-form-item label="证明材料:" prop="evidence">
+          <el-input v-model="formData.evidence" :clearable="true" placeholder="请输入" />
+       </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
           <el-button type="primary" @click="back">返回</el-button>
@@ -65,6 +68,9 @@ const formData = ref({
             award_level: '',
             competition_type: '',
             description: '',
+            evidence:'',
+            audit_status:"",
+            hint_message:"",
         })
 // 验证规则
 const rule = reactive({
@@ -90,6 +96,11 @@ const rule = reactive({
                }],
                award_level : [{
                    required: true,
+                   message: '',
+                   trigger: ['input','blur'],
+               }],
+               evidence :[{
+                required: true,
                    message: '',
                    trigger: ['input','blur'],
                }],
