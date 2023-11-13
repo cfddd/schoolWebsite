@@ -2,13 +2,14 @@
 package ApplySystem
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"time"
 )
 
 // PatentAuthorization 结构体  PatentAuthorization
 type PatentAuthorization struct {
-	global.GVA_MODEL
+	ID              uint       `json:"id" gorm:"primarykey"` // 主键ID
+	CreatedAt       string     `json:"created_at"`           // 创建时间
+	UpdatedAt       string     `json:"updated_at"`
 	Student_id      string     `json:"student_id" form:"student_id" gorm:"column:student_id;comment:;size:20;"`        //学号
 	Student_name    string     `json:"student_name" form:"student_name" gorm:"column:student_name;comment:;size:20;"`  //学号
 	Patent_name     string     `json:"patent_name" form:"patent_name" gorm:"column:patent_name;comment:;"`             //专利名称

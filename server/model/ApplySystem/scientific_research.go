@@ -2,13 +2,14 @@
 package ApplySystem
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"time"
 )
 
 // 科研项目填报 结构体  ScientificResearch
 type ScientificResearch struct {
-	global.GVA_MODEL
+	ID                      uint       `json:"id" gorm:"primarykey"` // 主键ID
+	CreatedAt               string     `json:"created_at"`           // 创建时间
+	UpdatedAt               string     `json:"updated_at"`
 	Student_id              string     `json:"student_id" form:"student_id" gorm:"column:student_id;comment:;size:20;"`                                         //学号
 	Student_name            string     `json:"student_name" form:"student_name" gorm:"column:student_name;comment:;size:20;"`                                   //学生姓名
 	Scientific_project_name string     `json:"scientific_project_name" form:"scientific_project_name" gorm:"column:scientific_project_name;comment:;size:100;"` //科研项目名称
