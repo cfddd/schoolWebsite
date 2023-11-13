@@ -12,7 +12,7 @@ autocode:
     server-api: /api/v1/%s
     server-plug: /plugin/%s
     server-initialize: /initialize
-    root: D:\goland\schoolWebsite\schoolWebsite
+    root: D:\Projects_Go\schoolWebsite
     web-table: /view
     web: /web/src
     server-service: /service/%s
