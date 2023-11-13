@@ -403,7 +403,6 @@ const updateAcademicPapersFunc = async(row) => {
     }
 }
 
-
 // 删除行
 const deleteAcademicPapersFunc = async (row) => {
     const res = await deleteAcademicPapers({ ID: row.ID })
