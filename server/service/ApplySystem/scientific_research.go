@@ -33,8 +33,8 @@ func (SRService *ScientificResearchService) DeleteScientificResearchByIds(ids re
 
 // UpdateScientificResearch 更新科研项目填报记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (SRService *ScientificResearchService) UpdateScientificResearch(SR ApplySystem.ScientificResearch) (err error) {
-	err = global.GVA_DB.Save(&SR).Error
+func (SRService *ScientificResearchService) UpdateScientificResearch(id uint, maps map[string]interface{}) (err error) {
+	err = global.GVA_DB.Model(&ApplySystem.ScientificResearch{}).Where("id = ?", id).Updates(maps).Error
 	return err
 }
 
