@@ -95,3 +95,12 @@ export const getCompetitionPrizeList = (params) => {
     params
   })
 }
+
+// @Tags CompetitionPrize
+// @Summary 分页获取比赛获奖申报列表
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data query request.PageInfo true "分页获取比赛获奖申报列表"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /CP/getCompetitionPrizeList [get]
