@@ -2,7 +2,6 @@ package ApplySystem
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1"
-	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +10,8 @@ type CompetitionPrizeRouter struct {
 
 // InitCompetitionPrizeRouter 初始化 比赛获奖申报 路由信息
 func (s *CompetitionPrizeRouter) InitCompetitionPrizeRouter(Router *gin.RouterGroup) {
-	CPRouter := Router.Group("CP").Use(middleware.OperationRecord())
+	//CPRouter := Router.Group("CP").Use(middleware.OperationRecord())
+	CPRouter := Router.Group("CP")
 	CPRouterWithoutRecord := Router.Group("CP")
 	var CPApi = v1.ApiGroupApp.ApplySystemApiGroup.CompetitionPrizeApi
 	{

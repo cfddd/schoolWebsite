@@ -33,8 +33,8 @@ func (APService *AcademicPapersService) DeleteAcademicPapersByIds(ids request.Id
 
 // UpdateAcademicPapers 更新学术论文记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (APService *AcademicPapersService) UpdateAcademicPapers(AP ApplySystem.AcademicPapers) (err error) {
-	err = global.GVA_DB.Save(&AP).Error
+func (APService *AcademicPapersService) UpdateAcademicPapers(id uint, maps map[string]interface{}) (err error) {
+	err = global.GVA_DB.Model(&ApplySystem.AcademicPapers{}).Where("id = ?", id).Updates(maps).Error
 	return err
 }
 

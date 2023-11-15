@@ -10,12 +10,23 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"time"
 )
 
 type PatentAuthorizationApi struct {
 }
 
 var PAService = service.ServiceGroupApp.ApplySystemServiceGroup.PatentAuthorizationService
+
+type PatentAuthorizationRequest struct {
+	student_id      string     `json:"student_id" binding:"required" msg:"学号必填"`
+	student_name    string     `json:"student_name" binding:"required" msg:"学生姓名必填"`
+	patent_name     string     `json:"patent_name" binding:"required" msg:"专利名必填"`
+	patent_type     string     `json:"patent_type"`
+	patent_grant_id string     `json:"patent_grant_id" binding:"required" msg:"专利授权必填"`
+	approval_time   *time.Time `json:"approval_time"`
+	is_first_invent *bool      `json:"is_first_invent"`
+}
 
 // CreatePatentAuthorization 创建PatentAuthorization
 // @Tags PatentAuthorization

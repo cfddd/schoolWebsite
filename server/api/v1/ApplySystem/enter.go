@@ -36,7 +36,7 @@ func MaterialDelete(mat *ApplySystem.MaterialUploadModel) (err error) {
 
 func MaterialUpload(mat *ApplySystem.MaterialUploadModel, file *multipart.FileHeader, c *gin.Context) (err error) {
 	// 存到本地去
-	mat.Path = fmt.Sprintf("server/uploads/file" + file.Filename)
+	mat.Path = fmt.Sprintf("uploads/file/" + file.Filename)
 	err = c.SaveUploadedFile(file, mat.Path)
 	if err != nil {
 		return
