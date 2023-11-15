@@ -85,6 +85,7 @@ func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 		AuthorityId: user.AuthorityId,
 	})
 	token, err := j.CreateToken(claims)
+	global.GVA_LOG.Warn(token)
 	if err != nil {
 		global.GVA_LOG.Error("获取token失败!", zap.Error(err))
 		response.FailWithMessage("获取token失败", c)

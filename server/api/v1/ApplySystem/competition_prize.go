@@ -51,12 +51,14 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 	// 上传多个图片文件
 	form, err := c.MultipartForm()
 	if err != nil {
-		res.FailWithMessage(err.Error(), c)
+		res.FailWithMessage("资料上传失败："+err.Error(), c)
+		global.GVA_LOG.Error("资料上传失败!", zap.Error(err))
 		return
 	}
 
 	fileList, ok := form.File["uploads"]
 	if !ok {
+		global.GVA_LOG.Error("不存在的文件!")
 		res.FailWithMessage("不存在的文件", c)
 		return
 	}
@@ -155,14 +157,13 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrizeByIds(c *gin.Context) {
 		}
 		CPS = append(CPS, CP)
 	}
-
 	// 删除材料
 	for _, CP := range CPS {
 		for _, material := range CP.MaterialUploadModels {
 			err = MaterialDelete(&material)
 			if err != nil {
-				global.GVA_LOG.Error("删除失败!", zap.Error(err))
-				response.FailWithMessage("删除失败", c)
+				global.GVA_LOG.Error("资料删除失败!", zap.Error(err))
+				response.FailWithMessage("资料删除失败", c)
 				return
 			}
 		}
@@ -209,11 +210,13 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 	// 上传了新的资料
 	form, err := c.MultipartForm()
 	if err != nil {
-		response.FailWithMessage(err.Error(), c)
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
 		return
 	}
 	fileList, ok := form.File["uploads"]
 	if !ok {
+		global.GVA_LOG.Error("不存在文件", zap.Error(err))
 		res.FailWithMessage("不存在的文件", c)
 		return
 	}
@@ -222,8 +225,8 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 	var CompentitionPrizeOld ApplySystem.CompetitionPrize
 	CompentitionPrizeOld, err = CPService.GetCompetitionPrize(cr.ID)
 	if err != nil {
-		global.GVA_LOG.Error("文章不存在", zap.Error(err))
-		response.FailWithMessage("文章不存在", c)
+		global.GVA_LOG.Error("申请不存在", zap.Error(err))
+		response.FailWithMessage("申请不存在", c)
 		return
 	}
 
