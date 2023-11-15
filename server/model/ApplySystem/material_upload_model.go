@@ -7,5 +7,6 @@ type MaterialUploadModel struct {
 	Path               string           `json:"path"`
 	CompetitionPrizeID uint             // 外键
 	CompetitionPrize   CompetitionPrize // 属于
-
+	AcademicPapersID   uint             // 外键
+	AcademicPapers     AcademicPapers   // 属于
 }
