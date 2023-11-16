@@ -10,6 +10,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ApplySystem"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/test"
 )
 
 func Gorm() *gorm.DB {
@@ -57,7 +58,7 @@ func RegisterTables() {
 		ApplySystem.ScientificResearch{},
 		ApplySystem.AcademicPapers{},
 		ApplySystem.PatentAuthorization{},
-		ApplySystem.MaterialUploadModel{},
+		ApplySystem.MaterialUploadModel{}, test.Test_upload{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

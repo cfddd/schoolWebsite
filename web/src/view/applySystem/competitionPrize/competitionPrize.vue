@@ -222,23 +222,10 @@
               placeholder="请输入说明"
             />
           </el-form-item>
-          <!-- <el-form-item label="证明材料:" prop="evidence">
-            <el-upload
-              v-model="formData.evidence"
-              class="upload-demo"
-              drag
-              action="https://jsonplaceholder.typicode.com/posts/"
-              multiple
-            >
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">
-                将文件拖到此处，或<em>点击上传</em>
-              </div>
-              <div class="el-upload__tip" slot="tip">
-                只能上传jpg/png文件,且不超过500kb
-              </div>
-            </el-upload>
-          </el-form-item> -->
+          <el-form-item label="证明材料:" prop="evidence">
+            
+          </el-form-item>
+          
         </el-form>
       </el-scrollbar>
       <template #footer>
@@ -248,7 +235,7 @@
         </div>
       </template>
     </el-dialog>
-
+    
     <el-dialog
       v-model="detailShow"
       style="width: 800px"
@@ -296,6 +283,7 @@
       </el-scrollbar>
     </el-dialog>
   </div>
+  <UploadFile/>
 </template>
 
 <script setup>
@@ -701,6 +689,16 @@ const enterDialog = async () => {
     }
   });
 };
+</script>
+
+<script>
+import UploadFile from "@/components/upload/CP_evidence.vue";
+
+export default {
+  components: {
+    UploadFile
+  }
+}
 </script>
 
 <style>
