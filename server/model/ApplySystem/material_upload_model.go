@@ -11,4 +11,6 @@ type MaterialUploadModel struct {
 	CompetitionPrize   CompetitionPrize // 属于
 	AcademicPapersID   uint             // 外键
 	AcademicPapers     AcademicPapers   // 属于
+	ScientificResearchID uint               //外键
+	ScientificResearch   ScientificResearch //属于
 }
