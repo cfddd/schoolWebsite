@@ -41,7 +41,7 @@ func (CPService *CompetitionPrizeService) UpdateCompetitionPrize(id uint, maps m
 // GetCompetitionPrize 根据id获取比赛获奖申报记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (CPService *CompetitionPrizeService) GetCompetitionPrize(id uint) (CP ApplySystem.CompetitionPrize, err error) {
-	err = global.GVA_DB.Where("id = ?", id).First(&CP).Error
+	err = global.GVA_DB.Preload("MaterialUploadModels").Where("id = ?", id).First(&CP).Error
 	return
 }
 
@@ -51,9 +51,9 @@ func (CPService *CompetitionPrizeService) GetCompetitionPrizeInfoList(info Apply
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
-	db := global.GVA_DB.Model(&ApplySystem.CompetitionPrize{})
+	db := global.GVA_DB.Preload("MaterialUploadModels").Model(&ApplySystem.CompetitionPrize{}) //预加载材料证明
 	var CPs []ApplySystem.CompetitionPrize
-	// 如果有条件搜索 下方会自动创建搜索语句
+	//如果有条件搜索 下方会自动创建搜索语句
 	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
 	}

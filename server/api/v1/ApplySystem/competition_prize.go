@@ -1,6 +1,7 @@
 package ApplySystem
 
 import (
+	"encoding/json"
 	"github.com/fatih/structs"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ApplySystem"
@@ -9,6 +10,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"time"
@@ -41,12 +43,20 @@ type CompetitionPrizeRequest struct {
 // @Router /CP/createCompetitionPrize [post]
 func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 	var cr CompetitionPrizeRequest
-	err := c.ShouldBindJSON(&cr)
+	cover := c.PostForm("cover")
+	err := json.Unmarshal([]byte(cover), &cr)
 	if err != nil {
-		res.FailWithError(err, cr, c)
+		res.FailWithMessage("填写错误", c)
 		return
 	}
+
 	// 检查当前学号是否正确，是否存在
+	userName := utils.GetUserName(c)
+	if userName != cr.Student_id {
+		res.FailWithMessage("学号填写错误", c)
+		global.GVA_LOG.Error("学号填写错误!", zap.Error(err))
+		return
+	}
 
 	// 上传多个图片文件
 	form, err := c.MultipartForm()
@@ -58,18 +68,18 @@ func (CPApi *CompetitionPrizeApi) CreateCompetitionPrize(c *gin.Context) {
 
 	fileList, ok := form.File["uploads"]
 	if !ok {
-		global.GVA_LOG.Error("不存在的文件!")
-		res.FailWithMessage("不存在的文件", c)
+		global.GVA_LOG.Error("请上传证明材料!")
+		res.FailWithMessage("请上传证明材料", c)
 		return
 	}
+
 	materialList := []ApplySystem.MaterialUploadModel{}
 	for _, file := range fileList {
 		var material ApplySystem.MaterialUploadModel
-
 		err = MaterialUpload(&material, file, c) //将材料信息入库
 		if err != nil {
-			global.GVA_LOG.Error("创建失败!", zap.Error(err))
-			response.FailWithMessage("创建失败", c)
+			global.GVA_LOG.Error("证明材料创建失败!", zap.Error(err))
+			response.FailWithMessage("证明材料创建失败", c)
 			return
 		}
 		materialList = append(materialList, material)
@@ -115,6 +125,12 @@ func (CPApi *CompetitionPrizeApi) DeleteCompetitionPrize(c *gin.Context) {
 		return
 	}
 	// 删除对应的材料
+	CP, err = CPService.GetCompetitionPrize(CP.ID)
+	if err != nil {
+		global.GVA_LOG.Error("未找到该条记录!", zap.Error(err))
+		response.FailWithMessage("未找到该条记录", c)
+	}
+
 	for _, material := range CP.MaterialUploadModels {
 		err = MaterialDelete(&material)
 		if err != nil {
@@ -210,13 +226,29 @@ type CompetitionPrizeUpdateRequest struct {
 // @Router /CP/updateCompetitionPrize [put]
 func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) {
 	// 要更新的参数
+	//var cr CompetitionPrizeUpdateRequest
+	//err := c.ShouldBindJSON(&cr)
+	//if err != nil {
+	//	global.GVA_LOG.Error("读入参数失败", zap.Error(err))
+	//	res.FailWithError(err, cr, c)
+	//	return
+	//}
 	var cr CompetitionPrizeUpdateRequest
-	err := c.ShouldBindJSON(&cr)
+	cover := c.PostForm("cover")
+	err := json.Unmarshal([]byte(cover), &cr)
 	if err != nil {
-		global.GVA_LOG.Error("读入参数失败", zap.Error(err))
-		res.FailWithError(err, cr, c)
+		res.FailWithMessage("填写错误", c)
 		return
 	}
+
+	// 检查当前学号是否正确，是否存在
+	userName := utils.GetUserName(c)
+	if userName != cr.Student_id {
+		res.FailWithMessage("学号填写错误", c)
+		global.GVA_LOG.Error("学号填写错误!", zap.Error(err))
+		return
+	}
+
 	// 上传了新的资料
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -226,8 +258,8 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 	}
 	fileList, ok := form.File["uploads"]
 	if !ok {
-		global.GVA_LOG.Error("不存在文件", zap.Error(err))
-		res.FailWithMessage("不存在的文件", c)
+		global.GVA_LOG.Error("资料上传失败！", zap.Error(err))
+		res.FailWithMessage("资料上传失败", c)
 		return
 	}
 
@@ -264,7 +296,7 @@ func (CPApi *CompetitionPrizeApi) UpdateCompetitionPrizeStudent(c *gin.Context) 
 
 	// 将要更新的参数赋值成数据库存储的结构体的类型
 	competitionPrizeNew := ApplySystem.CompetitionPrize{
-		UpdatedAt:            time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:            time.Now(),
 		Student_id:           cr.Student_id,
 		Student_name:         cr.Student_name,
 		Competition_name:     cr.Competition_name,

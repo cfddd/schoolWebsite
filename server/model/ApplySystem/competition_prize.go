@@ -9,8 +9,8 @@ import (
 // 比赛获奖申报 结构体  CompetitionPrize
 type CompetitionPrize struct {
 	ID                   uint                  `json:"id" gorm:"primarykey"`                                                                       // 主键ID
-	CreatedAt            string                `json:"created_at"`                                                                                 // 创建时间
-	UpdatedAt            string                `json:"updated_at"`                                                                                 // 更新时间
+	CreatedAt            time.Time             `json:"created_at"`                                                                                 // 创建时间
+	UpdatedAt            time.Time             `json:"updated_at"`                                                                                 // 更新时间
 	Student_id           string                `json:"student_id" form:"student_id" gorm:"column:student_id;comment:;size:50;"`                    //学号
 	Student_name         string                `json:"student_name" form:"student_name" gorm:"column:student_name;comment:;size:20;"`              //学生姓名
 	Competition_name     string                `json:"competition_name" form:"competition_name" gorm:"column:competition_name;comment:;size:100;"` //比赛名称
